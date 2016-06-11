@@ -153,12 +153,15 @@ class Statipy(object):
 					rname, ext = os.path.splitext(f)
 					if f.startswith('.') or ext != '.md':
 						continue
+
 					with open(os.path.join(root, f), 'r', encoding='utf-8') as fl:
 						lines = fl.readlines()
 						meta, lines = self.get_meta(lines)
+
 					self.markdown.reset()  #Clear variables like footnotes
 					meta['content'] = self.markdown.convert(''.join(lines))
 					meta['filename'] = f
+
 					extravars[bn].append(meta)
 				continue
 
@@ -178,7 +181,7 @@ class Statipy(object):
 				#If it's a .md, we should render it
 				if ext == '.md':
 					here = os.getcwd()
-					os.chdir(root)
+					os.chdir(root)  #Be sure we're in root for relative paths
 					p = self.render(f, environment, extravars)
 					os.chdir(here)
 					if p:
@@ -226,26 +229,26 @@ class Statipy(object):
 		"""Parse the passed Markdown file and use it to render the
 		requested template. Return the rendered page."""
 		
-		rendervars = dict(self.templ_vars) #Any global variables defined in settings
-		rendervars.update(extravars)
-		#Strip off content dir
+		#Read file and get metavars
 		with open(path, 'r', encoding='utf-8') as f:
 			lines = f.readlines()
-
 		meta, lines = self.get_meta(lines)
-		rendervars.update(meta)
 
+		#Define variables to render with
+		rendervars = dict(self.templ_vars) #Any global variables defined in settings
+		rendervars.update(extravars)
+		rendervars.update(meta)
 
 		#Skip files with 'skip' set in header, or no headers at all
 		if rendervars.get('skip', False) or not meta:
 			logging.info("Skipping file {0}".format(path))
 			return False
 
-		#Set up variables for rendering, put the rest of the file into content
+		#Render markdown content to HTML
 		self.markdown.reset()  #Clear variables like footnotes
 		rendervars['content'] = self.markdown.convert(''.join(lines))
 
-		#Which template to render?
+		#Define template to render
 		if 'template' not in rendervars:
 			rendervars['template'] = self.options['default_template']
 		if not os.path.splitext(rendervars['template'])[1]:
