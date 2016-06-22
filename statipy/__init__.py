@@ -8,9 +8,6 @@ import dateutil.parser
 from   codecs      import open
 from   collections import defaultdict
 
-import pprint
-from Colors import cstr
-
 # logging.basicConfig(level=logging.DEBUG)
 
 _default_vars = {
@@ -205,12 +202,6 @@ class Statipy(object):
 						pass
 					logging.info("Copy file {0} to {1}".format(src, dst))
 					shutil.copy(src, dst)
-
-			#If we were in a top-level directory, then clear out extravars
-			# for the next time; otherwise, we were in a subdir and we should
-			# keep them.
-#       if os.path.normpath(os.path.join(root, os.path.pardir)) == self.options['content_dir']:
-#         extravars = {}
 
 
 	def get_meta(self, lines):
