@@ -5,7 +5,11 @@ variables used to render Jinja2 templates.
 import os, sys, shutil, re, logging
 import jinja2
 import dateutil.parser
-from   codecs import open
+from   codecs      import open
+from   collections import defaultdict
+
+import pprint
+from Colors import cstr
 
 # logging.basicConfig(level=logging.DEBUG)
 
@@ -17,16 +21,22 @@ _default_vars = {
 class ParentLoader(jinja2.BaseLoader):
 	"""A Jinja2 template loader that searches the path and all parent
 	directories for the necessary template."""
-	def __init__(self, path, stop='/'):
+	def __init__(self, path, stop='/', default=None):
 		"""The path and its parents will be searched for the template,
-		stopping when the value of stop is reached."""
-		self.path = path
-		self.stop = stop
+		stopping when the value of stop is reached. If a default template
+		name is specified, however, when this name is requested parent
+		directories will _not_ be searched."""
+		self.path    = path
+		self.stop    = stop
+		self.default = default
 
 
 	def get_source(self, environment, template):
-		path = self.search_parents(self.path, template, self.stop)
-		if path is None:
+		if template == self.default:
+			path = template
+		else:
+			path = self.search_parents(self.path, template, self.stop)
+		if path is None or not os.path.exists(path):
 			raise jinja2.TemplateNotFound(template)
 		mtime = os.path.getmtime(path)
 		with file(path) as f:
@@ -132,44 +142,31 @@ class Statipy(object):
 	def load_pages(self):
 		"""Walk through the content directory and look for .md files which
 		we can use as input to render template files."""
-		extravars = {}
-		
+		#A dict of dicts to store the contents of _ directories. The first-
+		# level key is the parent directory of the _ dir; the second-level
+		# key is the name of the _ dir without the '_'. The value is a
+		# list of rendered pages.
+		extravars = defaultdict(dict)
+
 		#Walk through the directory bottom-up so that we get any
 		# subdirectories with extra variables first.
 		for root, dirs, files in os.walk(self.options['content_dir'],topdown=False):
-
 			#Per-directory environment to get templates from current
 			# directory or its parents
 			environment = jinja2.Environment(
-				loader=ParentLoader(root),
+				loader=ParentLoader(root, default=self.options['default_template']),
 				extensions=self.options.get('jinja2_extensions', []))
 
 			#Add any filters specified in options
 			environment.filters.update(self.options.get('jinja2_filters', {}))
 
-
 			#If the subdirectory starts with _, read and parse all .md files
 			# within it and add them as variables with the directory name
 			# (without the _).
-			rootbn = os.path.basename(root)
-			if rootbn.startswith('_'):
-				bn = rootbn[1:] #Drop the _
-				extravars[bn] = []
-				for f in files:
-					rname, ext = os.path.splitext(f)
-					if f.startswith('.') or ext != '.md':
-						continue
-
-					with open(os.path.join(root, f), 'r', encoding='utf-8') as fl:
-						lines = fl.readlines()
-						meta, lines = self.get_meta(lines)
-
-					self.markdown.reset()  #Clear variables like footnotes
-					meta['content'] = self.markdown.convert(''.join(lines))
-					meta['filename'] = f
-
-					extravars[bn].append(meta)
-				continue
+			basename = os.path.basename(root)
+			in_subfiles = basename.startswith('_')
+			if in_subfiles:
+				extravars[os.path.split(root)[0]][basename[1:]] = []  #Drop the _
 
 			#Go through each file in the current directory (root)
 			for f in files:
@@ -179,7 +176,8 @@ class Statipy(object):
 				if f.startswith('.') or ext == '.jinja':
 					continue
 
-				#Figure out where it should go in output
+				#Figure out where it should go in output for files to be
+				# copied or written (files not in _ dirs)
 				destroot = os.path.relpath(
 						os.path.join(root, rname),          #Full path (no extension)
 						start=self.options['content_dir'])  #Remove content/
@@ -188,13 +186,17 @@ class Statipy(object):
 				if ext == '.md':
 					here = os.getcwd()
 					os.chdir(root)  #Be sure we're in root for relative paths
-					p = self.render(f, environment, extravars)
+					meta = self.render(f, environment, extravars.get(root, {}))
 					os.chdir(here)
-					if p:
-						self.write(p, destroot + '.html')
+					#If we're in a _ dir, put the rendered file in extravars,
+					# otherwise write the rendered result to disk
+					if in_subfiles:
+						extravars[os.path.split(root)[0]][basename[1:]].append(meta)
+					elif meta['content']:
+							self.write(meta['content'], destroot + '.html')
 
-				#Otherwise copy it
-				else:
+				#Otherwise copy it, but not files in _ dirs
+				elif not in_subfiles:
 					src = os.path.join(root, f)
 					dst = os.path.join(self.options['output_dir'], destroot + ext)
 					try:
@@ -207,13 +209,14 @@ class Statipy(object):
 			#If we were in a top-level directory, then clear out extravars
 			# for the next time; otherwise, we were in a subdir and we should
 			# keep them.
-			if os.path.normpath(os.path.join(root, os.path.pardir)) == self.options['content_dir']:
-				extravars = {}
+#       if os.path.normpath(os.path.join(root, os.path.pardir)) == self.options['content_dir']:
+#         extravars = {}
 
 
 	def get_meta(self, lines):
 		"""Extract the metadata from a set of lines representing a file.
-		Return a tuple (metadata, remaining_lines)."""
+		Convert each metadata key to lower case.  Return a tuple
+		(metadata, remaining_lines)."""
 		#Load all of the initial lines with key: value; stop processing
 		# key/values on the first blank line or if there's no colon in the line
 		# or if it doesn't start with a letter
@@ -225,10 +228,12 @@ class Statipy(object):
 			key = key.lower().strip()
 			if key == 'date':
 				meta[key] = dateutil.parser.parse(val)
+			elif ',' in val:
+				meta[key] = [v.strip() for v in val.split(',')]
 			else:
 				meta[key] = val.strip()
 
-		return meta, lines[i:]
+		return meta, lines[i+1:]
 
 
 	def render(self, path, environment, extravars={}):
@@ -244,31 +249,41 @@ class Statipy(object):
 		rendervars = dict(self.templ_vars) #Any global variables defined in settings
 		rendervars.update(extravars)
 		rendervars.update(meta)
+		rendervars['filename'] = path
 
 		#Skip files with 'skip' set in header, or no headers at all
 		if rendervars.get('skip', False) or not meta:
 			logging.info("Skipping file {0}".format(path))
-			return False
+			rendervars['content'] = None
+			return rendervars
 
 		#Render markdown content to HTML
 		self.markdown.reset()  #Clear variables like footnotes
 		rendervars['content'] = self.markdown.convert(''.join(lines))
 
-		#Define template to render
-		if 'template' not in rendervars:
-			rendervars['template'] = self.options['default_template']
-		if not os.path.splitext(rendervars['template'])[1]:
-			rendervars['template'] += '.jinja'
-
-		#Get the template
+		#Get the template. If the template variable is not specified in
+		# the meta variables for the file, then try to get the default
+		# template from the current directory only. If that fails, return
+		# the Markdown-rendered HTML. If the template variable is in the
+		# meta variables, search parent directories for the template file
+		# as well. If that's not found, then raise an error.
+		template_file = rendervars.get('template', self.options['default_template'])
+		if not os.path.splitext(template_file)[1]:
+			template_file += '.jinja'
 		try:
-			template = environment.get_template(rendervars['template'])
+			template = environment.get_template(template_file)
 		except jinja2.loaders.TemplateNotFound:
-			logging.error('*** No template "{0}" found for file "{1}". ***'.format(
-				rendervars['template'], path))
+			if 'template' not in rendervars:
+				return rendervars
+			else:
+				logging.error('*** No template "{0}" found for file "{1}". ***'.format(
+					template_file, path))
 			sys.exit()
 
-		return template.render(page=rendervars, **rendervars)
+		#If we got here, we have a valid template, so render away, storing
+		# the contents of rendervars in the variable 'page'
+		rendervars['content'] = template.render(page=rendervars)
+		return rendervars
 
 
 	def write(self, page, path):
