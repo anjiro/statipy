@@ -174,9 +174,9 @@ class Statipy(object):
 					continue
 
 				#Figure out where it should go in output
-				destroot = os.path.join(
-					root.split(os.path.sep, 1)[1] if os.path.sep in root else root,
-					rname)
+				destroot = os.path.relpath(
+						os.path.join(root, rname),          #Full path (no extension)
+						start=self.options['content_dir'])  #Remove content/
 
 				#If it's a .md, we should render it
 				if ext == '.md':
