@@ -133,19 +133,25 @@ class Statipy(object):
 		"""Walk through the content directory and look for .md files which
 		we can use as input to render template files."""
 		extravars = {}
-		for root, dirs, files in os.walk(self.options['content_dir'], topdown=False):
-			rootbn = os.path.basename(root)
+		
+		#Walk through the directory bottom-up so that we get any
+		# subdirectories with extra variables first.
+		for root, dirs, files in os.walk(self.options['content_dir'],topdown=False):
 
-			#Per-directory environment to get templates from current dir
+			#Per-directory environment to get templates from current
+			# directory or its parents
 			environment = jinja2.Environment(
 				loader=ParentLoader(root),
 				extensions=self.options.get('jinja2_extensions', []))
+
+			#Add any filters specified in options
 			environment.filters.update(self.options.get('jinja2_filters', {}))
 
 
 			#If the subdirectory starts with _, read and parse all .md files
 			# within it and add them as variables with the directory name
 			# (without the _).
+			rootbn = os.path.basename(root)
 			if rootbn.startswith('_'):
 				bn = rootbn[1:] #Drop the _
 				extravars[bn] = []
