@@ -222,8 +222,6 @@ class Statipy(object):
 			key = key.lower().strip()
 			if key == 'date':
 				meta[key] = dateutil.parser.parse(val)
-			elif ',' in val and key != 'title':
-				meta[key] = [v.strip() for v in val.split(',')]
 			else:
 				meta[key] = val.strip()
 
