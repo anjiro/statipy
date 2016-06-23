@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="{{ DEFAULT_LANG }}" style="height:100%">
+  <head>
+		<title>{{ page.title }}</title>
+	</head>
+	<body>
+		<div>
+			Here is the content:
+			<div style="background:#ffeeee">
+				{{ page.content }}
+			</div>
+		</div>
+		<div>
+			And here are the contents of some files from the _lists
+			directory:
+			<ul>
+				{% for l in page.lists %}
+					<li><strong>{{ l.title }}:</strong> {{ l.count }} characters</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</body>
+</html>
