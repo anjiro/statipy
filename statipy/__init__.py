@@ -107,6 +107,7 @@ class Statipy(object):
 
 		logging.info("options: {0}".format(self.options))
 
+
 		try:
 			from site_config import markdown
 			self.markdown = markdown
@@ -174,9 +175,11 @@ class Statipy(object):
 					continue
 
 				#Figure out where it should go in output for files to be
-				# copied or written (files not in _ dirs)
+				# copied or written
 				destroot = os.path.relpath(
-						os.path.join(root, rname),          #Full path (no extension)
+						os.path.join(
+							os.path.join(os.path.split(root)[0], basename[1:]) if in_subfiles else root,
+							rname),          #Full path (no extension)
 						start=self.options['content_dir'])  #Remove content/
 
 				#If it's a .md, we should render it
@@ -192,8 +195,8 @@ class Statipy(object):
 					elif meta['content']:
 							self.write(meta['content'], destroot + '.html')
 
-				#Otherwise copy it, but not files in _ dirs
-				elif not in_subfiles:
+				#Otherwise copy it
+				else:
 					src = os.path.join(root, f)
 					dst = os.path.join(self.options['output_dir'], destroot + ext)
 					try:
