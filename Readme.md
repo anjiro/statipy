@@ -25,7 +25,6 @@ features that differentiate Statipy are:
 	for additional configuration. See the repository for an example.
 
 ##Usage
-
 Create a directory to hold your files, then under that create a
 directory named `content` and put your stuff in it. Run `statipy`.
 Statipy will mirror the directory structure to a directory (with some
@@ -45,7 +44,7 @@ consists of a tag followed by a colon. All metadata must be at the top
 of the file with no blank lines in between. The only required piece of
 metadata is a tag called `Title`. Other useful tags are `Template` to
 select a template file (more below) and `Date` to allow sorting. All
-tags are available to template files.
+tags are available to template files (in lower case).
 
 A simple Markdown file might therefore look like this:
 
