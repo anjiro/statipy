@@ -70,13 +70,15 @@ likewise a sub-variable (e.g. `page.title` or `page.date`).
 
 #####Special content
 Sometimes it's helpful to separate content into multiple files. If you
-create a directory starting with `_` (e.g., `_files`), Statipy will
+create a directory starting with `_` (e.g., `_files/`), Statipy will
 operate slightly differently. It will work as usual, rendering the
 Markdown files with the given templates, but rather than writing them
 to disk, it will pass them on to template files in the parent
 directories as a list in `page.<name_without_underscore>`. For
-example, if you have a directory called `_files` with `hello.md` and
-`goodbye.md`, then `page.files` will contain two items.
+example, if you have a directory called `_files/` with `hello.md` and
+`goodbye.md`, then `page.files` will contain two items, consisting of
+the contents of `hello.md` and `goodbye.md`. See the example for this
+idea in action.
 
 ####Templates
 Statipy uses standard Jinja2 templates. It searches for template files
