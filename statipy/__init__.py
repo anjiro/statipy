@@ -152,7 +152,8 @@ class Statipy(object):
 			#Per-directory environment to get templates from current
 			# directory or its parents
 			environment = jinja2.Environment(
-				loader=ParentLoader(root, default=self.options['default_template']),
+				loader=ParentLoader(root, stop=self.root,
+					default=self.options['default_template']),
 				extensions=self.options.get('jinja2_extensions', []))
 
 			#Add any filters specified in options
