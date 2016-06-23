@@ -24,12 +24,20 @@ features that differentiate Statipy are:
 	in a single file. You can provide an optional `site_config.py` file
 	for additional configuration. See the repository for an example.
 
+##Installation
+Run `pip git+https://github.com/anjiro/statipy.git`.
+
 ##Usage
 Create a directory to hold your files, then under that create a
 directory named `content` and put your stuff in it. Run `statipy`.
 Statipy will mirror the directory structure to a directory (with some
 caveats, below) named `output` which will contain your site. You can
 configure Statipy with a file called `site_config.py`.
+
+On installation, Statipy will also install a command `statipy-serve`
+which will run a local http server. Simply change into your `output`
+directory and run `statipy-serve`, optionally with a port number
+(default is 8000).
 
 ###Special files
 Statipy looks for some special files. First, it looks for Markdown
