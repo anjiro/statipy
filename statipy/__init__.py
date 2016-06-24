@@ -88,6 +88,7 @@ class Statipy(object):
 			import site_config
 		except ImportError:
 			sys.stderr.write('No site_config.py file found, exiting\n')
+			sys.exit(-1)
 		else:
 			try:
 				from site_config import templ_vars
@@ -271,7 +272,7 @@ class Statipy(object):
 			else:
 				logging.error('*** No template "{0}" found for file "{1}". ***'.format(
 					template_file, path))
-			sys.exit()
+			sys.exit(-1)
 
 		#If we got here, we have a valid template, so render away, storing
 		# the contents of rendervars in the variable 'page'
