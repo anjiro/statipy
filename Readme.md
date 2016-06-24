@@ -24,6 +24,16 @@ features that differentiate Statipy are:
 	in a single file. You can provide an optional `site_config.py` file
 	for additional configuration. See the repository for an example.
 
+Here are several examples of sites built with Statipy:
+
+- [fetlab.rit.edu](http://fetlab.rit.edu)
+- [fetlab.rit.edu/dan](http://fetlab.rit.edu/dan)
+- [fetlab.rit.edu/720-fall15](http://fetlab.rit.edu/720-fall15)
+- [fetlab.rit.edu/722](http://fetlab.rit.edu/722)
+
+You can see the source for these sites at
+[github.com/fetlab/website](http://github.com/fetlab/website).
+
 ##Installation
 Run `pip git+https://github.com/anjiro/statipy.git`.
 
@@ -32,7 +42,8 @@ Create a directory to hold your files, then under that create a
 directory named `content` and put your stuff in it. Run `statipy`.
 Statipy will mirror the directory structure to a directory (with some
 caveats, below) named `output` which will contain your site. You can
-configure Statipy with a file called `site_config.py`.
+configure Statipy with a file called `site_config.py` (this file must
+exist even if it's empty).
 
 On installation, Statipy will also install a command `statipy-serve`
 which will run a local http server. Simply change into your `output`
