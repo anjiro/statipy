@@ -87,7 +87,7 @@ class Statipy(object):
 		try:
 			import site_config
 		except ImportError:
-			logging.info('No site_config.py file found, skipping local config')
+			sys.stderr.write('No site_config.py file found, exiting\n')
 		else:
 			try:
 				from site_config import templ_vars
