@@ -149,7 +149,8 @@ class Statipy(object):
 
 		#Walk through the directory bottom-up so that we get any
 		# subdirectories with extra variables first.
-		for root, dirs, files in os.walk(self.options['content_dir'],topdown=False):
+		for root, dirs, files in os.walk(self.options['content_dir'],
+			topdown=False, followlinks=True):
 			#Per-directory environment to get templates from current
 			# directory or its parents
 			environment = jinja2.Environment(
