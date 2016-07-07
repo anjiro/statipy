@@ -75,9 +75,10 @@ class Statipy(object):
 			site_config.py.
 		"""
 		self.options = {
-			'content_dir':      'content',
-			'output_dir':       'output',
-			'default_template': 'default.jinja',
+			'content_dir':      'content',       #Where to look for content
+			'output_dir':       'output',        #Where to put output
+			'default_template': 'default.jinja', #Use if not specified in .md files
+			'root_subdir':      None,            #Put files here in site root
 		}
 
 		self.root = os.getcwd()
@@ -161,13 +162,16 @@ class Statipy(object):
 			#Add any filters specified in options
 			environment.filters.update(self.options.get('jinja2_filters', {}))
 
+			root_basename = os.path.basename(root)  #The name only of the current directory
+			parent_dir    = os.path.split(root)[0]  #The full path of the parent directory
+
 			#If the subdirectory starts with _, read and parse all .md files
 			# within it and add them as variables with the directory name
 			# (without the _).
-			basename = os.path.basename(root)
-			in_subfiles = basename.startswith('_')
+			in_subfiles = root_basename.startswith('_')
 			if in_subfiles:
-				extravars[os.path.split(root)[0]][basename[1:]] = []  #Drop the _
+				root_basename = root_basename[1:]
+				extravars[parent_dir][root_basename] = []  #Drop the _
 
 			#Go through each file in the current directory (root)
 			for f in files:
@@ -180,10 +184,12 @@ class Statipy(object):
 				#Figure out where it should go in output for files to be
 				# copied or written
 				destroot = os.path.relpath(
-						os.path.join(
-							os.path.join(os.path.split(root)[0], basename[1:]) if in_subfiles else root,
-							rname),          #Full path (no extension)
-						start=self.options['content_dir'])  #Remove content/
+					os.path.join(
+						os.path.join(parent_dir, root_basename) if in_subfiles else root,
+						rname),          #Filename with no extension
+					start=self.options['content_dir'])
+				if destroot.split(os.path.sep, 1)[0] == self.options['root_subdir']:
+					destroot = os.path.relpath(destroot, start=self.options['root_subdir'])
 
 				#If it's a .md, we should render it
 				if ext == '.md':
@@ -194,7 +200,7 @@ class Statipy(object):
 					#If we're in a _ dir, put the rendered file in extravars,
 					# otherwise write the rendered result to disk
 					if in_subfiles:
-						extravars[os.path.split(root)[0]][basename[1:]].append(meta)
+						extravars[parent_dir][root_basename].append(meta)
 					elif meta['content']:
 							self.write(meta['content'], destroot + '.html')
 
@@ -285,6 +291,7 @@ class Statipy(object):
 		"""Write the page to the path, making any necessary directories."""
 		if path.startswith('/'):
 			path = path[1:]
+
 		base_path = os.path.join(self.options['output_dir'], path)
 
 		#makedirs() can fail when the path already exists

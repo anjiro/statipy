@@ -117,6 +117,9 @@ Below are listed the dictionary keys and their meanings:
 		**(default: `content`)**
 	- `output_dir`: the directory in which to store the output
 		**(default: `output`)**
+	- `root_subdir`: a subdirectory in `content_dir` whose contents will
+		be copied to the root of your site instead. This is useful for
+		keeping your files organized in `content_dir`.
 	- `default_template`: the default filename to use for templates if
 		not otherwise specified in Markdown metadata variables **(default:
 		`default.jinja`)**
