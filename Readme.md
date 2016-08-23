@@ -1,5 +1,7 @@
 #Statipy
 
+Hello 720!
+
 Statipy is a very simple static site generator, written in Python, and
 heavily inspired by the more complex
 [Pelican](http://getpelican.com/).
