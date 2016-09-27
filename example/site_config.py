@@ -16,7 +16,6 @@ def includefile(filename, *args):
 def includemd(filename, *args):
 	"""Use with {{ myfile.md | includemd }}"""
 	m = markdown.convert(open(filename).read())
-	open('/tmp/mdout', 'w').write(m)
 	return m
 
 
