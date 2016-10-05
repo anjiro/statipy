@@ -219,12 +219,17 @@ class Statipy(object):
 				#Before we do anything else, let's check to see if the source
 				# file has been updated since the last run; if not, we don't
 				# need to process it.
+				#BUG: This fails when something in a _ dir has been changed;
+				# it won't re-render files that depend on those. For now, move
+				# this check to apply only to files that get copied.
 				full_src = os.path.join(root, f)
 				full_dst = os.path.join(self.options['output_dir'], destfile)
+				"""
 				if os.path.exists(full_dst) and \
 						os.path.getmtime(full_dst) >= os.path.getmtime(full_src):
 					logging.info("Skip {}".format(full_src))
 					continue
+				"""
 
 				#If it's a .md, we should render it
 				if ext == '.md':
@@ -241,14 +246,28 @@ class Statipy(object):
 							destfiles.remove(destfile)
 						self.write(meta['content'], destfile)
 
+						#Print a '.' for every file we process
+						sys.stdout.write('.')
+						sys.stdout.flush()
+
 				#Otherwise copy it
 				else:
+					#BUG: see above bug; this compensates by not copying
+					# unmodified files
+					if os.path.exists(full_dst) and \
+							os.path.getmtime(full_dst) >= os.path.getmtime(full_src):
+						logging.info("Skip {}".format(full_src))
+						continue
 					try:
 						os.makedirs(os.path.dirname(full_dst))
 					except OSError as e:
 						pass
 					logging.info("Copy file {0} to {1}".format(full_src, full_dst))
 					shutil.copy(full_src, full_dst)
+
+					#Print a '.' for every file we process
+					sys.stdout.write('.')
+					sys.stdout.flush()
 
 		#Now we go through any of the files that are remaining in the
 		# destfiles and remove them and their parent folders from the
