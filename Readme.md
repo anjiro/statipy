@@ -35,7 +35,7 @@ You can see the source for these sites at
 [github.com/fetlab/website](http://github.com/fetlab/website).
 
 ##Installation
-Run `pip git+https://github.com/anjiro/statipy.git`.
+Run `pip install git+https://github.com/anjiro/statipy.git`.
 
 ##Usage
 Create a directory to hold your files, then under that create a
