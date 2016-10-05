@@ -120,12 +120,31 @@ class Statipy(object):
 
 	
 	def generate_site(self):
-		self.prepare_output()
-		self.load_pages()
+		destfiles = self.prepare_output()
+		self.load_pages(destfiles=destfiles)
 
 
 	def prepare_output(self):
-		"""Prepare the output directory by removing any content there already."""
+		destfiles = []
+		curdir = os.getcwd()
+		os.chdir(self.options['output_dir'])
+		for dirpath, _, filenames in os.walk('.'):
+			if dirpath == '.':
+				destfiles.extend(filenames)
+			else:
+				p = os.path.relpath(dirpath)
+				destfiles.extend([os.path.join(p, f) for f in filenames])
+		os.chdir(curdir)
+
+		#Remove this later
+		#self._prepare_output()
+
+		return destfiles
+
+
+	def _prepare_output(self):
+		"""Prepare the output directory by removing any content there
+		already, except for dotfiles (e.g., .htaccess)."""
 		if os.path.isdir(self.options['output_dir']):
 			for name in os.listdir(self.options['output_dir']):
 				if name.startswith('.'):
@@ -139,7 +158,7 @@ class Statipy(object):
 			os.makedirs(self.options['output_dir'])
 
 
-	def load_pages(self):
+	def load_pages(self, destfiles):
 		"""Walk through the content directory and look for .md files which
 		we can use as input to render template files."""
 		#A dict of dicts to store the contents of _ directories. The first-
@@ -193,6 +212,18 @@ class Statipy(object):
 
 				#If it's a .md, we should render it
 				if ext == '.md':
+					#Check to see if the source file is newer than the target;
+					# if not, we can just skip it
+					destfile = destroot + '.html'
+					full_src = os.path.join(root, f)
+					full_dst = os.path.join(self.options['output_dir'], destfile)
+					if os.path.exists(full_dst) and \
+							os.path.getmtime(full_dst) >= os.path.getmtime(full_src):
+						logging.info("Skip {}".format(full_src))
+						if destfile in destfiles:
+							destfiles.remove(destfile)
+						continue
+
 					here = os.getcwd()
 					os.chdir(root)  #Be sure we're in root for relative paths
 					meta = self.render(f, environment, extravars.get(root, {}))
@@ -202,19 +233,42 @@ class Statipy(object):
 					if in_subfiles:
 						extravars[parent_dir][root_basename].append(meta)
 					elif meta['content']:
-							self.write(meta['content'], destroot + '.html')
+						if destfile in destfiles:
+							destfiles.remove(destfile)
+						self.write(meta['content'], destfile)
 
 				#Otherwise copy it
 				else:
-					src = os.path.join(root, f)
-					dst = os.path.join(self.options['output_dir'], destroot + ext)
-					try:
-						os.makedirs(os.path.dirname(dst))
-					except OSError as e:
-						pass
-					logging.info("Copy file {0} to {1}".format(src, dst))
-					shutil.copy(src, dst)
+					destfile = destroot + ext
+					full_src = os.path.join(root, f)
+					full_dst = os.path.join(self.options['output_dir'], destfile)
+					if os.path.exists(full_dst) and \
+							os.path.getmtime(full_dst) >= os.path.getmtime(full_src):
+						logging.info("Skip {}".format(full_src))
+					else:
+						try:
+							os.makedirs(os.path.dirname(full_dst))
+						except OSError as e:
+							pass
+						logging.info("Copy file {0} to {1}".format(full_src, full_dst))
+						shutil.copy(full_src, full_dst)
 
+					if destfile in destfiles:
+						destfiles.remove(destfile)
+
+		#Now we go through any of the files that are remaining in the
+		# destfiles and remove them and their parent folders from the
+		# output directory
+		for f in destfiles:
+			rmfile = os.path.join(self.options['output_dir'], f)
+			os.unlink(rmfile)
+			logging.info("Remove file {}".format(rmfile))
+
+			destroot, fn = os.path.split(f)
+			rm_dir = os.path.join(self.options['output_dir'], destroot)
+			if len(os.listdir(rm_dir)) == 0:
+				logging.info("Remove directory {}".format(rm_dir))
+				os.rmdir(rm_dir)
 
 	def get_meta(self, lines):
 		"""Extract the metadata from a set of lines representing a file.
