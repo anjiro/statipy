@@ -210,20 +210,24 @@ class Statipy(object):
 				if destroot.split(os.path.sep, 1)[0] == self.options['root_subdir']:
 					destroot = os.path.relpath(destroot, start=self.options['root_subdir'])
 
+				#Update the list of files we might delete from output if their
+				# source file doesn't exist anymore.
+				destfile = destroot + ('.html' if ext == '.md' else ext)
+				if destfile in destfiles:
+					destfiles.remove(destfile)
+
+				#Before we do anything else, let's check to see if the source
+				# file has been updated since the last run; if not, we don't
+				# need to process it.
+				full_src = os.path.join(root, f)
+				full_dst = os.path.join(self.options['output_dir'], destfile)
+				if os.path.exists(full_dst) and \
+						os.path.getmtime(full_dst) >= os.path.getmtime(full_src):
+					logging.info("Skip {}".format(full_src))
+					continue
+
 				#If it's a .md, we should render it
 				if ext == '.md':
-					#Check to see if the source file is newer than the target;
-					# if not, we can just skip it
-					destfile = destroot + '.html'
-					full_src = os.path.join(root, f)
-					full_dst = os.path.join(self.options['output_dir'], destfile)
-					if os.path.exists(full_dst) and \
-							os.path.getmtime(full_dst) >= os.path.getmtime(full_src):
-						logging.info("Skip {}".format(full_src))
-						if destfile in destfiles:
-							destfiles.remove(destfile)
-						continue
-
 					here = os.getcwd()
 					os.chdir(root)  #Be sure we're in root for relative paths
 					meta = self.render(f, environment, extravars.get(root, {}))
@@ -239,22 +243,12 @@ class Statipy(object):
 
 				#Otherwise copy it
 				else:
-					destfile = destroot + ext
-					full_src = os.path.join(root, f)
-					full_dst = os.path.join(self.options['output_dir'], destfile)
-					if os.path.exists(full_dst) and \
-							os.path.getmtime(full_dst) >= os.path.getmtime(full_src):
-						logging.info("Skip {}".format(full_src))
-					else:
-						try:
-							os.makedirs(os.path.dirname(full_dst))
-						except OSError as e:
-							pass
-						logging.info("Copy file {0} to {1}".format(full_src, full_dst))
-						shutil.copy(full_src, full_dst)
-
-					if destfile in destfiles:
-						destfiles.remove(destfile)
+					try:
+						os.makedirs(os.path.dirname(full_dst))
+					except OSError as e:
+						pass
+					logging.info("Copy file {0} to {1}".format(full_src, full_dst))
+					shutil.copy(full_src, full_dst)
 
 		#Now we go through any of the files that are remaining in the
 		# destfiles and remove them and their parent folders from the
