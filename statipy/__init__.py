@@ -222,14 +222,15 @@ class Statipy(object):
 				#BUG: This fails when something in a _ dir has been changed;
 				# it won't re-render files that depend on those. For now, move
 				# this check to apply only to files that get copied.
+				#For now, bypass the bug by only skipping when there are no _
+				# directories present.
 				full_src = os.path.join(root, f)
 				full_dst = os.path.join(self.options['output_dir'], destfile)
-				"""
 				if os.path.exists(full_dst) and \
+						not any(dn.startswith('_') for dn in dirs) and \
 						os.path.getmtime(full_dst) >= os.path.getmtime(full_src):
 					logging.info("Skip {}".format(full_src))
 					continue
-				"""
 
 				#If it's a .md, we should render it
 				if ext == '.md':
