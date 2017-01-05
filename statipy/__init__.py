@@ -68,6 +68,7 @@ class Statipy(object):
 			content_dir       - the directory to search for content to render
 			output_dir        - the directory in which to store the output
 			default_template  - the default file to use as a template
+			jinja_markdown    - attempt to render jinja in Markdown (default: True)
 			jinja2_filters    - a dict of user-defined filters
 			jinja2_extensions - a list of user-defined extensions
 
@@ -79,6 +80,7 @@ class Statipy(object):
 			'output_dir':       'output',        #Where to put output
 			'default_template': 'default.jinja', #Use if not specified in .md files
 			'root_subdir':      None,            #Put files here in site root
+			'jinja_markdown':   True,            #Render Jinja in Markdown
 		}
 
 		self.root = os.getcwd()
@@ -309,9 +311,15 @@ class Statipy(object):
 			rendervars['content'] = None
 			return rendervars
 
+		mdlines = ''.join(lines)
+
+		#Attempt to interpret jinja embedded within Markdown file
+		if self.options['jinja_markdown']:
+			mdlines = jinja2.Template(''.join(lines), trim_blocks=True).render()
+
 		#Render markdown content to HTML
 		self.markdown.reset()  #Clear variables like footnotes
-		rendervars['content'] = self.markdown.convert(''.join(lines))
+		rendervars['content'] = self.markdown.convert(mdlines)
 
 		#Get the template. If the template variable is not specified in
 		# the meta variables for the file, then try to get the default
