@@ -351,7 +351,11 @@ class Statipy(object):
 
 		#If we got here, we have a valid template, so render away, storing
 		# the contents of rendervars in the variable 'page'
-		rendervars['content'] = template.render(page=rendervars)
+		try:
+			rendervars['content'] = template.render(page=rendervars)
+		except:
+			logging.error("Error rendering file {0}".format(path))
+			raise
 		return rendervars
 
 
