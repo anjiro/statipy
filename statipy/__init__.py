@@ -125,6 +125,8 @@ class Statipy(object):
 
 
 	def prepare_output(self):
+		"""Walk through the output directory and find what files are there
+		so we can remove or replace them later."""
 		destfiles = []
 		curdir = os.getcwd()
 		os.chdir(self.options['output_dir'])
@@ -136,26 +138,7 @@ class Statipy(object):
 				destfiles.extend([os.path.join(p, f) for f in filenames])
 		os.chdir(curdir)
 
-		#Remove this later
-		#self._prepare_output()
-
 		return destfiles
-
-
-	def _prepare_output(self):
-		"""Prepare the output directory by removing any content there
-		already, except for dotfiles (e.g., .htaccess)."""
-		if os.path.isdir(self.options['output_dir']):
-			for name in os.listdir(self.options['output_dir']):
-				if name.startswith('.'):
-					continue
-				path = os.path.join(self.options['output_dir'], name)
-				if os.path.isfile(path):
-					os.unlink(path)
-				else:
-					shutil.rmtree(path)
-		else:
-			os.makedirs(self.options['output_dir'])
 
 
 	def load_pages(self, destfiles):
