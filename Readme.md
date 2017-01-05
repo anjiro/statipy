@@ -11,8 +11,8 @@ messing around. Statipy aims to fix this problem.
 ##Features
 
 Like many other static site generators, Statipy uses
-[Jinja2](http://jinja.pocoo.org/) templates. However, the main
-features that differentiate Statipy are:
+[Jinja2](http://jinja.pocoo.org/) templates to render Markdown
+content. However, the main features that differentiate Statipy are:
 
 - Mirrored site layout: set up your site in `content/` as you want it,
 	and Statipy will copy the same structure into your site's `output/`
@@ -20,6 +20,9 @@ features that differentiate Statipy are:
 - Non-centralized templates: templates (with a `.jinja` extension)
 	live in the same directories as your content, rather than in a
 	central template directory.
+- In-Markdown Jinja: sometimes it's handy to embed a bit of code in
+	your content. Statipy will attempt to render your Markdown file with
+	Jinja first. The `jinja_markdown` variable can turn off this option.
 - Single file architecture: Statipy is under 300 lines long and lives
 	in a single file. You can provide an optional `site_config.py` file
 	for additional configuration. See the repository for an example.
@@ -123,6 +126,8 @@ Below are listed the dictionary keys and their meanings:
 	- `default_template`: the default filename to use for templates if
 		not otherwise specified in Markdown metadata variables **(default:
 		`default.jinja`)**
+	- `jinja_markdown`: set to False to disable rendering of Jinja2
+		content within Markdown files.
 	- `jinja2_filters`: a dictionary of extra filters to add to Jinja2;
 		keys are the names by which the filters will be accessible and
 		values are functions. See the [Jinja2
