@@ -8,7 +8,6 @@ import dateutil.parser
 from   codecs      import open
 from   collections import defaultdict
 
-# logging.basicConfig(level=logging.DEBUG)
 
 _default_vars = {
 	'DEFAULT_LANG': 'en',
@@ -90,6 +89,9 @@ class Statipy(object):
 		try:
 			import site_config
 		except ImportError:
+			logging.debug("ImportError in loading site_config.py. Current "
+					"path is: {}; files I see:\n{}".format(self.root,
+						os.listdir(self.root)))
 			sys.stderr.write('No site_config.py file found, exiting\n')
 			sys.exit(-1)
 		else:
@@ -369,7 +371,19 @@ class Statipy(object):
 
 
 def main():
-	import time
+	import time, argparse
+
+	p = argparse.ArgumentParser(description="Static website generator")
+	p.add_argument('-d', action='store_true', help='Turn on debugging')
+
+	if not sys.argv[1:]:
+		p.print_help()
+		sys.exit(0)
+
+	args = p.parse_args()
+	if args.d:
+		logging.basicConfig(level=logging.DEBUG)
+
 	t = time.time()
 	sys.stdout.write("Statipy...")
 	sys.stdout.flush()
