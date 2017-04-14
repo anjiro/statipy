@@ -376,10 +376,6 @@ def main():
 	p = argparse.ArgumentParser(description="Static website generator")
 	p.add_argument('-d', action='store_true', help='Turn on debugging')
 
-	if not sys.argv[1:]:
-		p.print_help()
-		sys.exit(0)
-
 	args = p.parse_args()
 	if args.d:
 		logging.basicConfig(level=logging.DEBUG)
