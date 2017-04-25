@@ -1,4 +1,4 @@
-#Statipy
+# Statipy
 
 Statipy is a very simple static site generator, written in Python, and
 heavily inspired by the more complex
@@ -8,7 +8,7 @@ Most static site generators are aimed at blogging and make it
 difficult to make a truly static, modular site without a lot of
 messing around. Statipy aims to fix this problem.
 
-##Features
+## Features
 
 Like many other static site generators, Statipy uses
 [Jinja2](http://jinja.pocoo.org/) templates to render Markdown
@@ -37,10 +37,10 @@ Here are several examples of sites built with Statipy:
 You can see the source for these sites at
 [github.com/fetlab/website](http://github.com/fetlab/website).
 
-##Installation
+## Installation
 Run `pip install git+https://github.com/anjiro/statipy.git`.
 
-##Usage
+## Usage
 Create a directory to hold your files, then under that create a
 directory named `content` and put your stuff in it. Run `statipy`.
 Statipy will mirror the directory structure to a directory (with some
@@ -53,14 +53,14 @@ which will run a local http server. Simply change into your `output`
 directory and run `statipy-serve`, optionally with a port number
 (default is 8000).
 
-###Special files
+### Special files
 Statipy looks for some special files. First, it looks for Markdown
 files with `.md` extensions to process and create content from.
 Second, it looks for [Jinja2](http://jinja.pocoo.org) templates with
 `.jinja` extensions. It uses the Markdown files as content to render
 the templates with.
 
-####Content
+#### Content
 Statipy Markdown files have special metadata at the top. The metadata
 consists of a tag followed by a colon. All metadata must be at the top
 of the file with no blank lines in between. The only required piece of
@@ -82,7 +82,7 @@ Each Markdown file is provided to the template under a variable named
 `page`; the rendered content is `page.content` and any metadata is
 likewise a sub-variable (e.g. `page.title` or `page.date`).
 
-#####Special content
+##### Special content
 Sometimes it's helpful to separate content into multiple files. If you
 create a directory starting with `_` (e.g., `_files/`), Statipy will
 operate slightly differently. It will work as usual, rendering the
@@ -94,7 +94,7 @@ example, if you have a directory called `_files/` with `hello.md` and
 the contents of `hello.md` and `goodbye.md`. See the example for this
 idea in action.
 
-####Templates
+#### Templates
 Statipy uses standard Jinja2 templates. It searches for template files
 in the directory of the Markdown file; if it can't find a matching
 template there, it will traverse the parent directories until it
@@ -105,7 +105,7 @@ Statipy will search for that template; otherwise, it will use the
 default template name (`default.jinja` or as configured in
 `site_config.py`).
 
-####Configuration
+#### Configuration
 You can create a file called `site_config.py` in your root directory
 to further customize Statipy's operation. Statipy will attempt to
 import two optional variables from this file: `templ_vars` and `options`.
@@ -131,9 +131,9 @@ Below are listed the dictionary keys and their meanings:
 	- `jinja2_filters`: a dictionary of extra filters to add to Jinja2;
 		keys are the names by which the filters will be accessible and
 		values are functions. See the [Jinja2
-		documentation](http://jinja.pocoo.org/docs/dev/api/#writing-filters)
+		documentation](http://jinja.pocoo.org/docs/dev/api/# writing-filters)
 		and the example `site_config.py` for more information.
 	- `jinja2_extensions`: a list of strings specifying Jinja2
 		extensions; see the list of available extensions [in the Jinja2
-		documentation](http://jinja.pocoo.org/docs/dev/extensions/#jinja-extensions)
+		documentation](http://jinja.pocoo.org/docs/dev/extensions/# jinja-extensions)
 		and the example `site_config.py` for more information.

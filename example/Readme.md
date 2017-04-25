@@ -1,4 +1,4 @@
-#Example Statipy site
+# Example Statipy site
 
 This is a simple Statipy example site. Its structure looks like the
 following:
@@ -19,18 +19,18 @@ following:
 │   │   └── wolf.md
 ```
 
-##`site_config.py`
+## `site_config.py`
 
 The `site_config.py` file is empty, because the example doesn't do
 anything particularly complex. See `site_config_extra.py` at the
 bottom of this file for an explanation of the more complex things that
 can be done.
 
-##`content`
+## `content`
 
 The `content` directory holds the content for the site.
 
-###`default.jinja`
+### `default.jinja`
 
 `default.jinja` is the name of the template file that Statipy will
 search for if no other template files can be found. In this case, it's
@@ -53,16 +53,16 @@ and stored in the `page.lists` variable, which the template then loops
 over. At each iteration, it creates a new `<li>` and lists the two
 variables present in each file within `_lists`: `title` and `count`.
 
-### `index.md`
+###  `index.md`
 
 This will use `default.jinja` to render itself into `index.html`.
 
-### `mypage.md`
+###  `mypage.md`
 
 This is another page that will use `default.jinja` to render itself.
 It includes a built-in loop to generate some data as a demo.
 
-### `_lists`
+###  `_lists`
 
 This directory contains a number of items which will be rendered
 within `default.jinja` as described above. For exmaple, here are the
@@ -73,7 +73,7 @@ Title: elephant
 Count: 9
 ```
 
-##`site_config_extra.py`
+## `site_config_extra.py`
 
 To illustrate the things that can be done in `site_config.py`, the
 file `site_config_extra.py` has a number of Jinja2 filters. As a
