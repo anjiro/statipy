@@ -137,3 +137,10 @@ Below are listed the dictionary keys and their meanings:
 		extensions; see the list of available extensions [in the Jinja2
 		documentation](http://jinja.pocoo.org/docs/dev/extensions/# jinja-extensions)
 		and the example `site_config.py` for more information.
+	- `date_from_filename`: if no `Date:` key is specified in the
+		metadata part of the file, attempt to parse it from the filename.
+		In this case, the filename should be of a format that can be
+		parsed by
+		`[dateutil.parser.parse](https://dateutil.readthedocs.io/en/stable/parser.html#dateutil.parser.parse)`
+		(I suggest `YYYY-MM-DD.md`). If the filename can't be parsed in
+		this way, no date will be included with the file's metadata.

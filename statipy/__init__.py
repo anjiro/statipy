@@ -75,11 +75,12 @@ class Statipy(object):
 			site_config.py.
 		"""
 		self.options = {
-			'content_dir':      'content',       #Where to look for content
-			'output_dir':       'output',        #Where to put output
-			'default_template': 'default.jinja', #Use if not specified in .md files
-			'root_subdir':      None,            #Put files here in site root
-			'jinja_markdown':   True,            #Render Jinja in Markdown
+			'content_dir':        'content',       #Where to look for content
+			'output_dir':         'output',        #Where to put output
+			'default_template':   'default.jinja', #Use if not specified in .md files
+			'root_subdir':        None,            #Put files here in site root
+			'jinja_markdown':     True,            #Render Jinja in Markdown
+			'date_from_filename': True,            #If no 'Date:' in meta, try filename
 		}
 
 		self.root = os.getcwd()
@@ -300,6 +301,15 @@ class Statipy(object):
 		with open(path, 'r', encoding='utf-8') as f:
 			lines = f.readlines()
 		meta, lines = self.get_meta(lines)
+
+		#If no date metadata and date_from_filename is True, attempt to
+		# parse the filename for the date
+		if 'date' not in meta and self.options['date_from_filename']:
+			try:
+				meta['date'] = dateutil.parser.parse(
+					os.path.splitext(os.path.basename(path))[0])
+			except ValueError: #Couldn't parse filename as date
+				pass
 
 		#Define variables to render with
 		rendervars = dict(self.templ_vars) #Any global variables defined in settings
