@@ -336,7 +336,7 @@ class Statipy(object):
 
 		#Attempt to interpret jinja embedded within Markdown file
 		if self.options['jinja_markdown']:
-			mdlines = jinja2.Template(''.join(lines), trim_blocks=True).render()
+			mdlines = environment.from_string(''.join(lines)).render(page=rendervars)
 
 		#Render markdown content to HTML
 		self.markdown.reset()  #Clear variables like footnotes
