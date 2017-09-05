@@ -172,6 +172,15 @@ class Statipy(object):
 			root_basename = os.path.basename(root)  #The name only of the current directory
 			parent_dir    = os.path.split(root)[0]  #The full path of the parent directory
 
+			#Get a list of directories above this one; useful for
+			# directories that may move. Use in .md files with
+			# jinja_markdown true as: [somefile]({{roots[0]}}/somefile.jpg]
+			roots = ['']
+			for d in os.path.relpath(root,
+				self.options['content_dir']).split(os.path.sep):
+				roots.append(os.path.join(roots[-1], d))
+			extravars[root]['roots'] = roots[1:]
+
 			#If the subdirectory starts with _, read and parse all .md files
 			# within it and add them as variables with the directory name
 			# (without the _).
