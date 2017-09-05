@@ -14,6 +14,24 @@ _default_vars = {
 }
 
 
+def search_parents(path, filename, stop='/'):
+	"""Search path and its parents for the given filename. Return the
+	full absolute path to the file, including the filename. Return None if
+	the root of the drive is reached and nothing is found."""
+	if path == stop:
+		return None
+	f = os.path.basename(filename)
+	if f != filename:
+		raise NameError("Filename must be without path")
+	c = os.path.join(path, f)
+	if os.path.exists(c):
+		return c
+	p = os.path.abspath(os.path.normpath(os.path.join(path, os.path.pardir)))
+	if p == path:
+		return None
+	return search_parents(p, filename, stop)
+
+
 class ParentLoader(jinja2.BaseLoader):
 	"""A Jinja2 template loader that searches the path and all parent
 	directories for the necessary template."""
@@ -26,12 +44,11 @@ class ParentLoader(jinja2.BaseLoader):
 		self.stop    = stop
 		self.default = default
 
-
 	def get_source(self, environment, template):
 		if template == self.default:
 			path = template
 		else:
-			path = self.search_parents(self.path, template, self.stop)
+			path = search_parents(self.path, template, self.stop)
 		if path is None or not os.path.exists(path):
 			raise jinja2.TemplateNotFound(template)
 		mtime = os.path.getmtime(path)
@@ -40,23 +57,6 @@ class ParentLoader(jinja2.BaseLoader):
 		return source, path, lambda: mtime == os.path.getmtime(path)
 
 		
-	@classmethod
-	def search_parents(cls, path, filename, stop='/'):
-		"""Search path and its parents for the given filename. Return the
-		full absolute path to the file, including the filename. Return None if
-		the root of the drive is reached and nothing is found."""
-		if path == stop:
-			return None
-		f = os.path.basename(filename)
-		if f != filename:
-			raise NameError("Filename must be without path")
-		c = os.path.join(path, f)
-		if os.path.exists(c):
-			return c
-		p = os.path.abspath(os.path.normpath(os.path.join(path, os.path.pardir)))
-		if p == path:
-			return None
-		return cls.search_parents(p, filename, stop)
 
 
 
