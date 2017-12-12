@@ -314,6 +314,8 @@ class Statipy(object):
 		"""Parse the passed Markdown file and use it to render the
 		requested template. Return the rendered page."""
 		
+		fullpath = os.path.relpath(os.path.join(os.getcwd(), path), self.root)
+		
 		#Read file and get metavars
 		with open(path, 'r', encoding='utf-8') as f:
 			lines = f.readlines()
@@ -323,8 +325,7 @@ class Statipy(object):
 		# parse the filename for the date
 		if 'date' not in meta and self.options['date_from_filename']:
 			try:
-				meta['date'] = dateutil.parser.parse(
-					os.path.splitext(os.path.basename(path))[0])
+				meta['date'] = dateutil.parser.parse(os.path.splitext(path)[0])
 			except ValueError: #Couldn't parse filename as date
 				pass
 
@@ -366,7 +367,7 @@ class Statipy(object):
 				return rendervars
 			else:
 				logging.error('*** No template "{0}" found for file "{1}". ***'.format(
-					template_file, path))
+					template_file, fullpath))
 			sys.exit(-1)
 
 		#If we got here, we have a valid template, so render away, storing
@@ -374,7 +375,7 @@ class Statipy(object):
 		try:
 			rendervars['content'] = template.render(page=rendervars)
 		except:
-			logging.error("Error rendering file {0}".format(path))
+			logging.error("Error rendering file {0}".format(fullpath))
 			raise
 		return rendervars
 
