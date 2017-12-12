@@ -8,6 +8,14 @@ import dateutil.parser
 from   codecs      import open
 from   collections import defaultdict
 
+try:
+	import coloredlogs
+except:
+	pass
+else:
+	fmt = '%(asctime)s %(levelname)s %(message)s'
+	coloredlogs.install(level='WARN', milliseconds=True, fmt=fmt)
+
 
 _default_vars = {
 	'DEFAULT_LANG': 'en',
