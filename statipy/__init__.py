@@ -315,6 +315,7 @@ class Statipy(object):
 		requested template. Return the rendered page."""
 		
 		fullpath = os.path.relpath(os.path.join(os.getcwd(), path), self.root)
+		logging.info("render({})".format(fullpath))
 		
 		#Read file and get metavars
 		with open(path, 'r', encoding='utf-8') as f:
