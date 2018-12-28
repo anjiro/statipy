@@ -157,9 +157,6 @@ class Statipy(object):
 	def load_pages(self, destfiles):
 		"""Walk through the content directory and look for .md files which
 		we can use as input to render template files."""
-		LoggingUndefined = jinja2.make_logging_undefined(
-			logger = logging.getLogger('logger'),
-			base   = jinja2.Undefined)
 		#A dict of dicts to store the contents of _ directories. The first-
 		# level key is the parent directory of the _ dir; the second-level
 		# key is the name of the _ dir without the '_'. The value is a
@@ -175,9 +172,7 @@ class Statipy(object):
 			environment = jinja2.Environment(
 				loader=ParentLoader(root, stop=self.root,
 				default=self.options['default_template']),
-				extensions=self.options.get('jinja2_extensions', []),
-				#undefined=LoggingUndefined)
-				undefined=jinja2.StrictUndefined)
+				extensions=self.options.get('jinja2_extensions', []))
 
 			#Add any filters specified in options
 			environment.filters.update(self.options.get('jinja2_filters', {}))
@@ -386,29 +381,6 @@ class Statipy(object):
 		while True:
 			try:
 				rendervars['content'] = template.render(page=rendervars)
-			except jinja2.exceptions.UndefinedError as err:
-				#Lots of traceback hijinks to print the line number and
-				# contents when there is a rendering error.
-				if logging.getLogger().isEnabledFor(logging.DEBUG):
-					import linecache
-					exc_info = sys.exc_info()
-					tb = jinja2.debug.make_traceback(exc_info).frames[-1]
-					f = tb.tb_frame
-					lineno = tb.tb_lineno
-					co = f.f_code
-					filename = co.co_filename
-					linecache.checkcache(filename)
-					line = linecache.getline(filename, lineno, f.f_globals)
-					line = line.strip() if line else None
-					#Try to skip debugging on silly things like testing for
-					# a variable's existence.
-					if not (' has no attribute ' in str(err) and
-						re.search('{%\s*if\s+', line)):
-						logging.warn("\n\tWarning while rendering file {}:{}\n\t{}".format(
-							fullpath, lineno, err))
-						print("\t{}".format(line))
-				else:
-					pass
 			except:
 				logging.error("Error rendering file {}".format(fullpath))
 				raise
