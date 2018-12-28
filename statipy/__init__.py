@@ -371,13 +371,23 @@ class Statipy(object):
 					template_file, fullpath))
 			sys.exit(-1)
 
-		#If we got here, we have a valid template, so render away, storing
-		# the contents of rendervars in the variable 'page'
-		try:
-			rendervars['content'] = template.render(page=rendervars)
-		except:
-			logging.error("Error rendering file {0}".format(fullpath))
-			raise
+		#If we got here, we have a valid template. Render the template
+		# using the contents of rendervars at least once. If we find
+		# potential variables {{}} inside the content continue to render
+		# until they are all gone (this takes care of variables created in
+		# 'content' during the rendering step, e.g. by including an
+		# external file). The contents of rendervars is visible to the
+		# template and included files in the variable 'page'.
+		while True:
+			try:
+				rendervars['content'] = template.render(page=rendervars)
+			except:
+				logging.error("Error rendering file {0}".format(fullpath))
+				raise
+			if not re.search('{{[^}]+}}', rendervars['content']):
+				break
+			else:
+				template = environment.from_string(rendervars['content'])
 		return rendervars
 
 
