@@ -74,6 +74,7 @@ class Statipy(object):
 		"""Pass options as kwargs. Currently supported options are:
 			content_dir       - the directory to search for content to render
 			output_dir        - the directory in which to store the output
+			skip_dirs         - a list of subdirectories in content_dir to skip
 			default_template  - the default file to use as a template
 			jinja_markdown    - attempt to render jinja in Markdown (default: True)
 			jinja2_filters    - a dict of user-defined filters
@@ -167,6 +168,12 @@ class Statipy(object):
 		# subdirectories with extra variables first.
 		for root, dirs, files in os.walk(self.options['content_dir'],
 			topdown=False, followlinks=True):
+
+			rootbase = os.path.relpath(root, self.options['content_dir'])
+			if any(rootbase.startswith(sd) for sd in
+					self.options.get('skip_dirs', [])):
+				continue
+
 			#Per-directory environment to get templates from current
 			# directory or its parents
 			environment = jinja2.Environment(
@@ -184,8 +191,7 @@ class Statipy(object):
 			# directories that may move. Use in .md files with
 			# jinja_markdown true as: [somefile]({{roots[0]}}/somefile.jpg]
 			roots = ['']
-			for d in os.path.relpath(root,
-				self.options['content_dir']).split(os.path.sep):
+			for d in rootbase.split(os.path.sep):
 				roots.append(os.path.join(roots[-1], d))
 			extravars[root]['roots'] = roots[1:]
 
