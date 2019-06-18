@@ -79,6 +79,7 @@ class Statipy(object):
 			jinja_markdown    - attempt to render jinja in Markdown (default: True)
 			jinja2_filters    - a dict of user-defined filters
 			jinja2_extensions - a list of user-defined extensions
+			env_callback      - function to be run on the Environment
 
 			These options can also be stored in a dict called "options" in
 			site_config.py.
@@ -90,6 +91,7 @@ class Statipy(object):
 			'root_subdir':        None,            #Put files here in site root
 			'jinja_markdown':     True,            #Render Jinja in Markdown
 			'date_from_filename': True,            #If no 'Date:' in meta, try filename
+			'env_callback':       None,            #Callback to run functions on Environment
 		}
 
 		self.root = os.getcwd()
@@ -183,6 +185,9 @@ class Statipy(object):
 
 			#Add any filters specified in options
 			environment.filters.update(self.options.get('jinja2_filters', {}))
+
+			if self.options['env_callback'] is not None:
+				self.options['env_callback'](environment)
 
 			root_basename = os.path.basename(root)  #The name only of the current directory
 			parent_dir    = os.path.split(root)[0]  #The full path of the parent directory
