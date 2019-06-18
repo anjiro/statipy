@@ -200,6 +200,7 @@ class Statipy(object):
 			# (without the _).
 			in_subfiles = root_basename.startswith('_')
 			if in_subfiles:
+				logging.debug('Inside {}'.format(root))
 				root_basename = root_basename[1:]
 				extravars[parent_dir][root_basename] = []  #Drop the _
 
