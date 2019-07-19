@@ -351,6 +351,7 @@ class Statipy(object):
 		rendervars.update(extravars)
 		rendervars.update(meta)
 		rendervars['filename'] = path
+		rendervars['htmlfile'] = os.path.splitext(path)[0] + '.html'
 
 		#Skip files with 'skip' set in header, or no headers at all
 		if rendervars.get('skip', False) or not meta:
