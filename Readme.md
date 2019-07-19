@@ -29,10 +29,10 @@ content. However, the main features that differentiate Statipy are:
 
 Here are several examples of sites built with Statipy:
 
-- [fetlab.rit.edu](http://fetlab.rit.edu)
-- [fetlab.rit.edu/dan](http://fetlab.rit.edu/dan)
-- [fetlab.rit.edu/720-fall15](http://fetlab.rit.edu/720-fall15)
-- [fetlab.rit.edu/722](http://fetlab.rit.edu/722)
+- [fetlab.io](http://fetlab.io)
+- [fetlab.io/dan](http://fetlab.io/dan)
+- [fetlab.io/720-fall15](http://fetlab.io/720-fall15)
+- [fetlab.io/722](http://fetlab.io/722)
 
 You can see the source for these sites at
 [github.com/fetlab/website](http://github.com/fetlab/website).
