@@ -80,7 +80,8 @@ This is my awesome page.
 
 Each Markdown file is provided to the template under a variable named
 `page`; the rendered content is `page.content` and any metadata is
-likewise a sub-variable (e.g. `page.title` or `page.date`).
+likewise a sub-variable (e.g. `page.title` or `page.date`). See the
+[List of page variables](#list-of-page-variables) below.
 
 ##### Special content
 Sometimes it's helpful to separate content into multiple files. If you
@@ -144,3 +145,29 @@ Below are listed the dictionary keys and their meanings:
 		`[dateutil.parser.parse](https://dateutil.readthedocs.io/en/stable/parser.html#dateutil.parser.parse)`
 		(I suggest `YYYY-MM-DD.md`). If the filename can't be parsed in
 		this way, no date will be included with the file's metadata.
+
+
+## List of page variables
+
+The `page` object is accessible from within each Jinja template. It
+contains a number of variables that come from three potential sources:
+
+1. Some (see the table below) are put there by Statipy.
+2. Any metadata defined at the top of each Markdown file is saved as a
+	 (lowercase-transformed) variable. This includes things like `title`
+	 and `date` but any metadata following the format described
+	 above in the [Content](#content) section will be placed here.
+3. Any variables defined within the `templ_vars` dict inside
+	 `site_config.py` will be available. This is useful for doing things
+	 like defining a phone number that might change, or (in a
+	 more-complex scenario) changing the configuration in response to an
+	 envrionment variable.
+
+The variables inserted by Statipy into each rendered page include:
+
+Variable  | Explanation
+-----------------------
+`content` | The actual rendered content of the page.
+`title`   | The title defined in the metadata for the Markdown file.
+`filename`| The filename of the Markdown file being rendered, with
+            path relative to the `content` directory.
