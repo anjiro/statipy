@@ -166,9 +166,8 @@ contains a number of variables that come from three potential sources:
 The variables inserted by Statipy into each rendered page include:
 
 Variable  | Explanation
------------------------
+----------|------------
 `content` | The actual rendered content of the page.
 `title`   | The title defined in the metadata for the Markdown file.
-`filename`| The filename of the Markdown file being rendered, with
-            path relative to the `content` directory.
+`filename`| The filename of the Markdown file being rendered, with path relative to the `content` directory.
 `htmlfile`| The same as `filename` but with `.md` replaced with `.html`.
