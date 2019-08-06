@@ -44,7 +44,7 @@ def search_parents(path, filename, stop='/'):
 	def get_meta(self, lines):
 		"""Extract the metadata from a set of lines representing a file.
 		Convert each metadata key to lower case.  Return a tuple
-		(metadata, remaining_lines)."""
+		(metadata, remaining_lines) where metadata is a dict."""
 		#Load all of the initial lines with key: value; stop processing
 		# key/values on the first blank line or if there's no colon in the line
 		# or if it doesn't start with a letter
