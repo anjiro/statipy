@@ -321,7 +321,16 @@ class Statipy(object):
 			if key == 'date':
 				meta[key] = dateutil.parser.parse(val)
 			else:
-				meta[key] = val.strip()
+				val = val.strip()
+				try:
+					v = float(val)
+				except:
+					meta[key] = val.strip()
+				else:
+					if v.is_integer():
+						meta[key] = int(v)
+					else:
+						meta[key] = v
 
 		return meta, lines[i+1:]
 
