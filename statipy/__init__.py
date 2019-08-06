@@ -40,6 +40,38 @@ def search_parents(path, filename, stop='/'):
 	return search_parents(p, filename, stop)
 
 
+
+	def get_meta(self, lines):
+		"""Extract the metadata from a set of lines representing a file.
+		Convert each metadata key to lower case.  Return a tuple
+		(metadata, remaining_lines)."""
+		#Load all of the initial lines with key: value; stop processing
+		# key/values on the first blank line or if there's no colon in the line
+		# or if it doesn't start with a letter
+		meta = {}
+		for i,l in enumerate(lines):
+			if re.match('^\s*$|^[^A-Za-z]', l) or ':' not in l:
+				break
+			key, val = l.split(':', 1)
+			key = key.lower().strip()
+			if key == 'date':
+				meta[key] = dateutil.parser.parse(val)
+			else:
+				val = val.strip()
+				try:
+					v = float(val)
+				except:
+					meta[key] = val.strip()
+				else:
+					if v.is_integer():
+						meta[key] = int(v)
+					else:
+						meta[key] = v
+
+		return meta, lines[i+1:]
+
+
+
 class ParentLoader(jinja2.BaseLoader):
 	"""A Jinja2 template loader that searches the path and all parent
 	directories for the necessary template."""
@@ -305,36 +337,6 @@ class Statipy(object):
 				logging.info("Remove directory {}".format(rm_dir))
 				os.rmdir(rm_dir)
 
-	def get_meta(self, lines):
-		"""Extract the metadata from a set of lines representing a file.
-		Convert each metadata key to lower case.  Return a tuple
-		(metadata, remaining_lines)."""
-		#Load all of the initial lines with key: value; stop processing
-		# key/values on the first blank line or if there's no colon in the line
-		# or if it doesn't start with a letter
-		meta = {}
-		for i,l in enumerate(lines):
-			if re.match('^\s*$|^[^A-Za-z]', l) or ':' not in l:
-				break
-			key, val = l.split(':', 1)
-			key = key.lower().strip()
-			if key == 'date':
-				meta[key] = dateutil.parser.parse(val)
-			else:
-				val = val.strip()
-				try:
-					v = float(val)
-				except:
-					meta[key] = val.strip()
-				else:
-					if v.is_integer():
-						meta[key] = int(v)
-					else:
-						meta[key] = v
-
-		return meta, lines[i+1:]
-
-
 	def render(self, path, environment, extravars={}):
 		"""Parse the passed Markdown file and use it to render the
 		requested template. Return the rendered page."""
@@ -345,7 +347,7 @@ class Statipy(object):
 		#Read file and get metavars
 		with open(path, 'r', encoding='utf-8') as f:
 			lines = f.readlines()
-		meta, lines = self.get_meta(lines)
+		meta, lines = get_meta(lines)
 
 		#If no date metadata and date_from_filename is True, attempt to
 		# parse the filename for the date
