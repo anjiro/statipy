@@ -41,34 +41,34 @@ def search_parents(path, filename, stop='/'):
 
 
 
-	def get_meta(self, lines):
-		"""Extract the metadata from a set of lines representing a file.
-		Convert each metadata key to lower case.  Return a tuple
-		(metadata, remaining_lines) where metadata is a dict."""
-		#Load all of the initial lines with key: value; stop processing
-		# key/values on the first blank line or if there's no colon in the line
-		# or if it doesn't start with a letter
-		meta = {}
-		for i,l in enumerate(lines):
-			if re.match('^\s*$|^[^A-Za-z]', l) or ':' not in l:
-				break
-			key, val = l.split(':', 1)
-			key = key.lower().strip()
-			if key == 'date':
-				meta[key] = dateutil.parser.parse(val)
+def get_meta(lines):
+	"""Extract the metadata from a set of lines representing a file.
+	Convert each metadata key to lower case.  Return a tuple
+	(metadata, remaining_lines) where metadata is a dict."""
+	#Load all of the initial lines with key: value; stop processing
+	# key/values on the first blank line or if there's no colon in the line
+	# or if it doesn't start with a letter
+	meta = {}
+	for i,l in enumerate(lines):
+		if re.match('^\s*$|^[^A-Za-z]', l) or ':' not in l:
+			break
+		key, val = l.split(':', 1)
+		key = key.lower().strip()
+		if key == 'date':
+			meta[key] = dateutil.parser.parse(val)
+		else:
+			val = val.strip()
+			try:
+				v = float(val)
+			except:
+				meta[key] = val.strip()
 			else:
-				val = val.strip()
-				try:
-					v = float(val)
-				except:
-					meta[key] = val.strip()
+				if v.is_integer():
+					meta[key] = int(v)
 				else:
-					if v.is_integer():
-						meta[key] = int(v)
-					else:
-						meta[key] = v
+					meta[key] = v
 
-		return meta, lines[i+1:]
+	return meta, lines[i+1:]
 
 
 
