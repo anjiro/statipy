@@ -115,6 +115,7 @@ class Statipy(object):
 			default_template  - the default file to use as a template
 			jinja_markdown    - attempt to render jinja in Markdown (default: True)
 			jinja2_filters    - a dict of user-defined filters
+			jinja2_tests      - a dict of user-defined tests
 			jinja2_extensions - a list of user-defined extensions
 			env_callback      - function to be run on the Environment
 
@@ -223,6 +224,7 @@ class Statipy(object):
 
 			#Add any filters specified in options
 			environment.filters.update(self.options.get('jinja2_filters', {}))
+			environment.tests.update(  self.options.get('jinja2_tests',   {}))
 
 			if self.options['env_callback'] is not None:
 				self.options['env_callback'](environment)
