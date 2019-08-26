@@ -88,9 +88,12 @@ class ParentLoader(jinja2.BaseLoader):
 		if template == self.default:
 			path = template
 		else:
+			logging.debug('search_parents({}, {}, {})'.format(self.path, template, self.stop))
 			path = search_parents(self.path, template, self.stop)
 		if path is None or not os.path.exists(path):
-			raise jinja2.TemplateNotFound(template)
+			raise jinja2.TemplateNotFound(template,
+					"Can't find a matching file" if path is None else
+					"Path '{}' doesn't exist".format(path))
 		mtime = os.path.getmtime(path)
 		with file(path) as f:
 			source = f.read().decode('utf-8')
