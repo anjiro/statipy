@@ -286,7 +286,7 @@ class Statipy(object):
 				if os.path.exists(full_dst) and \
 						not any(dn.startswith('_') for dn in dirs) and \
 						os.path.getmtime(full_dst) >= os.path.getmtime(full_src):
-					logging.info("Skip {}".format(full_src))
+					logging.info("Skip {} (unchanged since last run)".format(full_src))
 					continue
 
 				#If it's a .md, we should render it
@@ -318,7 +318,7 @@ class Statipy(object):
 					# unmodified files
 					if os.path.exists(full_dst) and \
 							os.path.getmtime(full_dst) >= os.path.getmtime(full_src):
-						logging.info("Skip {}".format(full_src))
+						logging.info("Skip {} (unchanged since last run)".format(full_src))
 						continue
 					try:
 						os.makedirs(os.path.dirname(full_dst))
@@ -374,7 +374,8 @@ class Statipy(object):
 
 		#Skip files with 'skip' set in header, or no headers at all
 		if rendervars.get('skip', False) or not meta:
-			logging.info("Skipping file {0}".format(path))
+			logging.info("Skip {} ({})".format(path,
+				'no metadata in file' if not meta else '"skip" in metadata'))
 			rendervars['content'] = None
 			return rendervars
 
@@ -395,17 +396,24 @@ class Statipy(object):
 		# meta variables, search parent directories for the template file
 		# as well. If that's not found, then raise an error.
 		template_file = rendervars.get('template', self.options['default_template'])
+		logging.info('Try template "{}" for "{}"'.format(template_file, fullpath))
 		if not os.path.splitext(template_file)[1]:
 			template_file += '.jinja'
+
 		try:
 			template = environment.get_template(template_file)
-		except jinja2.loaders.TemplateNotFound:
+		except jinja2.loaders.TemplateNotFound as exmsg:
 			if 'template' not in rendervars:
+				logging.info("Couldn't find template '{}' for '{}': {}".format(
+					template_file, fullpath, exmsg))
 				return rendervars
 			else:
 				logging.error('*** No template "{0}" found for file "{1}". ***'.format(
 					template_file, fullpath))
 			sys.exit(-1)
+
+		logging.info('Template "{0}" found for file "{1}".'.format(
+			template_file, fullpath))
 
 		#If we got here, we have a valid template. Render the template
 		# using the contents of rendervars at least once. If we find
