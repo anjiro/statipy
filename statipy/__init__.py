@@ -56,6 +56,8 @@ def get_meta(lines):
 		key = key.lower().strip()
 		if key == 'date':
 			meta[key] = dateutil.parser.parse(val)
+		elif val.strip() == 'None':
+			continue
 		else:
 			val = val.strip()
 			try:
