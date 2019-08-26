@@ -141,8 +141,9 @@ class Statipy(object):
 			logging.debug("ImportError in loading site_config.py. Current "
 					"path is: {}; files I see:\n{}".format(self.root,
 						os.listdir(self.root)))
-			sys.stderr.write('Error importing site_config.py or file not found, exiting\n')
-			raise
+			sys.stderr.write('Error importing site_config.py or file not '
+					'found. Are you in the right directory? Exiting.\n')
+			sys.exit(-1)
 		else:
 			try:
 				from site_config import templ_vars
