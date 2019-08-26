@@ -117,7 +117,7 @@ class Statipy(object):
 			jinja2_filters    - a dict of user-defined filters
 			jinja2_tests      - a dict of user-defined tests
 			jinja2_extensions - a list of user-defined extensions
-			env_callback      - function to be run on the Environment
+			callbacks         - dict of functions to be run at different points
 
 			These options can also be stored in a dict called "options" in
 			site_config.py.
@@ -129,11 +129,13 @@ class Statipy(object):
 			'root_subdir':        None,            #Put files here in site root
 			'jinja_markdown':     True,            #Render Jinja in Markdown
 			'date_from_filename': True,            #If no 'Date:' in meta, try filename
-			'env_callback':       None,            #Callback to run functions on Environment
+			'callbacks':          {},              #Callback to run functions on Environment
 		}
 
 		self.root = os.getcwd()
 		self.templ_vars = _default_vars
+
+		self.callback('init_start')
 
 		#Attempt to load templ_vars and options from site_config.py
 		try:
@@ -164,7 +166,6 @@ class Statipy(object):
 
 		logging.info("options: {0}".format(self.options))
 
-
 		try:
 			from site_config import markdown
 			self.markdown = markdown
@@ -173,10 +174,20 @@ class Statipy(object):
 			self.markdown = Markdown(extensions=['markdown.extensions.extra',
 				'markdown.extensions.codehilite', 'markdown.extensions.smarty'])
 
+		self.callback('init_end')
+
+
+	def callback(self, callback_name, context=None):
+		"""Call a callback named callback_name in the callbacks dict,
+		providing optional context to the callback."""
+		logging.info("Call callback '{}'".format(callback_name))
+		self.options['callbacks'].get(callback_name, lambda c: None)(context)
+
 	
 	def generate_site(self):
 		destfiles = self.prepare_output()
 		self.load_pages(destfiles=destfiles)
+		self.callback('end_run')
 
 
 	def prepare_output(self):
@@ -226,8 +237,7 @@ class Statipy(object):
 			environment.filters.update(self.options.get('jinja2_filters', {}))
 			environment.tests.update(  self.options.get('jinja2_tests',   {}))
 
-			if self.options['env_callback'] is not None:
-				self.options['env_callback'](environment)
+			self.callback('setup_environment', environment)
 
 			root_basename = os.path.basename(root)  #The name only of the current directory
 			parent_dir    = os.path.split(root)[0]  #The full path of the parent directory
