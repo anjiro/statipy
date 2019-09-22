@@ -44,7 +44,8 @@ def search_parents(path, filename, stop='/'):
 def get_meta(lines):
 	"""Extract the metadata from a set of lines representing a file.
 	Convert each metadata key to lower case.  Return a tuple
-	(metadata, remaining_lines) where metadata is a dict."""
+	(metadata, remaining_lines) where metadata is a dict. Attempt to
+	interpret values from medata, converting to date, numbers, or lists."""
 	#Load all of the initial lines with key: value; stop processing
 	# key/values on the first blank line or if there's no colon in the line
 	# or if it doesn't start with a letter
@@ -54,21 +55,30 @@ def get_meta(lines):
 			break
 		key, val = l.split(':', 1)
 		key = key.lower().strip()
+		val = val.strip()
+		if val == 'None':
+			continue
+
 		if key == 'date':
 			meta[key] = dateutil.parser.parse(val)
-		elif val.strip() == 'None':
 			continue
+
+		#If the key is plural and there's a comma in val, interpret it as
+		# a list
+		if key.endswith('s') and ',' in val:
+			meta[key] = re.split(r'\s*,\s*', val)
+			continue
+
+		#Try to convert the value to a number
+		try:
+			v = float(val)
+		except:
+			meta[key] = val.strip()
 		else:
-			val = val.strip()
-			try:
-				v = float(val)
-			except:
-				meta[key] = val.strip()
+			if v.is_integer():
+				meta[key] = int(v)
 			else:
-				if v.is_integer():
-					meta[key] = int(v)
-				else:
-					meta[key] = v
+				meta[key] = v
 
 	return meta, lines[i+1:]
 
