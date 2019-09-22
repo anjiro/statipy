@@ -97,8 +97,8 @@ class ParentLoader(jinja2.BaseLoader):
 					"Can't find a matching file" if path is None else
 					"Path '{}' doesn't exist".format(path))
 		mtime = os.path.getmtime(path)
-		with file(path) as f:
-			source = f.read().decode('utf-8')
+		with open(path) as f:
+			source = f.read()
 		return source, path, lambda: mtime == os.path.getmtime(path)
 
 		
@@ -458,8 +458,8 @@ class Statipy(object):
 		except OSError as e:
 			pass
 
-		with open(base_path, 'w') as f:
-			f.write(page.encode('utf-8'))
+		with open(base_path, 'w', encoding='utf-8') as f:
+			f.write(page)
 
 
 
