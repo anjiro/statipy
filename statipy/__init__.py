@@ -195,6 +195,8 @@ class Statipy(object):
 		so we can remove or replace them later."""
 		destfiles = []
 		curdir = os.getcwd()
+		if not os.path.exists(self.options['output_dir']):
+			os.mkdir(self.options['output_dir'])
 		os.chdir(self.options['output_dir'])
 		for dirpath, _, filenames in os.walk('.'):
 			if dirpath == '.':
