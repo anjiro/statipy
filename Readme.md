@@ -1,8 +1,7 @@
 # Statipy
 
-Statipy is a very simple static site generator, written in Python, and
-heavily inspired by the more complex
-[Pelican](http://getpelican.com/).
+Statipy is a very simple static site generator, written in Python 3, and
+heavily inspired by the more complex [Pelican](http://getpelican.com/).
 
 Most static site generators are aimed at blogging and make it
 difficult to make a truly static, modular site without a lot of
