@@ -417,7 +417,7 @@ class Statipy(object):
 		# the Markdown-rendered HTML. If the template variable is in the
 		# meta variables, search parent directories for the template file
 		# as well. If that's not found, then raise an error.
-		template_file = rendervars.get('template', self.options['default_template'])
+		template_file = str(rendervars.get('template', self.options['default_template']))
 		logging.info('Try template "{}" for "{}"'.format(template_file, fullpath))
 		if not os.path.splitext(template_file)[1]:
 			template_file += '.jinja'
