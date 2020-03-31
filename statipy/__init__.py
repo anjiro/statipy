@@ -244,7 +244,7 @@ class Statipy(object):
 			# directory or its parents
 			environment = jinja2.Environment(
 				loader=ParentLoader(root, stop=self.root,
-				default=self.options['default_template']),
+					default=self.options['default_template']),
 				extensions=self.options.get('jinja2_extensions', []))
 
 			#Add any filters specified in options
