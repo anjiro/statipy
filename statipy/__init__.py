@@ -288,8 +288,12 @@ class Statipy(object):
 						os.path.join(parent_dir, root_basename) if in_subfiles else root,
 						rname),          #Filename with no extension
 					start=self.options['content_dir'])
-				if destroot.split(os.path.sep, 1)[0] == self.options['root_subdir']:
-					destroot = os.path.relpath(destroot, start=self.options['root_subdir'])
+				
+				#See if we have root_subdir and redirect files in these
+				# destionations to the root
+				rsub = self.options['root_subdir']
+				if rsub and os.path.commonpath([destroot, rsub]) == rsub:
+					destroot = os.path.relpath(destroot, rsub)
 
 				#Update the list of files we might delete from output if their
 				# source file doesn't exist anymore.
