@@ -99,6 +99,8 @@ class ParentLoader(jinja2.BaseLoader):
 	def get_source(self, environment, template):
 		if template == self.default:
 			path = template
+		elif os.path.sep in template:
+			path = template
 		else:
 			logging.debug('search_parents({}, {}, {})'.format(self.path, template, self.stop))
 			path = search_parents(self.path, template, self.stop)
