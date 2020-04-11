@@ -322,8 +322,8 @@ class Statipy(object):
 
 				#If it's a .md, we should render it
 				if ext == '.md':
-					here = os.getcwd()
-					os.chdir(root)  #Be sure we're in root for relative paths
+					#Be sure we're in the root content directory for relative paths
+					os.chdir(root)  
 
 					try:
 						_extravars = extravars.get(root, {})
@@ -333,7 +333,9 @@ class Statipy(object):
 					except UnboundLocalError:
 						logging.error("Error rendering file {}".format(full_src))
 						raise
-					os.chdir(here)
+					
+					os.chdir(self.basedir)
+
 					#If we're in a _ dir, put the rendered file in extravars,
 					# otherwise write the rendered result to disk
 					if in_subfiles:
