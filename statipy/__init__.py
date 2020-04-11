@@ -326,6 +326,10 @@ class Statipy(object):
 					here = os.getcwd()
 					os.chdir(root)  #Be sure we're in root for relative paths
 
+					#See if we can load a local configuration
+					#if os.path.exists()
+					#spec = importlib.util.spec_from_file_location()
+
 					try:
 						_extravars = extravars.get(root, {})
 						_extravars['fullpath'] = destfile
