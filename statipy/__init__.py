@@ -265,13 +265,15 @@ class Statipy(object):
 			extravars[root]['roots'] = roots[1:]
 
 			#If the subdirectory starts with _, read and parse all .md files
-			# within it and add them as variables with the directory name
-			# (without the _).
+			# within it and add them as variables to the page with the
+			# directory name (without the _).
+			# For example: _food/bananas.md, _food/apples.md become
+			# page.food.bananas and page.food.apples .
 			in_subfiles = root_basename.startswith('_')
 			if in_subfiles:
 				logging.debug('Inside {}'.format(root))
-				root_basename = root_basename[1:]
-				extravars[parent_dir][root_basename] = []  #Drop the _
+				root_basename = root_basename[1:]  #Drop the _
+				extravars[parent_dir][root_basename] = []
 
 			#Go through each file in the current directory (root)
 			for f in files:
@@ -288,7 +290,7 @@ class Statipy(object):
 						os.path.join(parent_dir, root_basename) if in_subfiles else root,
 						rname),          #Filename with no extension
 					start=self.options['content_dir'])
-				
+
 				#See if we have root_subdir and redirect files in these
 				# destionations to the root
 				rsub = self.options['root_subdir']
