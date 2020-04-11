@@ -316,7 +316,8 @@ class Statipy(object):
 				if os.path.exists(full_dst) and \
 						not any(dn.startswith('_') for dn in dirs) and \
 						os.path.getmtime(full_dst) >= os.path.getmtime(full_src):
-					logging.info("Skip {} (unchanged since last run)".format(full_src))
+					logging.info("Skip copying {} -> {} (unchanged since last run)".format(
+						full_src, full_dst))
 					continue
 
 				#If it's a .md, we should render it
@@ -326,7 +327,7 @@ class Statipy(object):
 					try:
 						meta = self.render(f, environment, extravars.get(root, {}))
 					except UnboundLocalError:
-						logging.error("Error rendering file {}".format(f))
+						logging.error("Error rendering file {}".format(full_src))
 						raise
 					os.chdir(here)
 					#If we're in a _ dir, put the rendered file in extravars,
@@ -348,7 +349,8 @@ class Statipy(object):
 					# unmodified files
 					if os.path.exists(full_dst) and \
 							os.path.getmtime(full_dst) >= os.path.getmtime(full_src):
-						logging.info("Skip {} (unchanged since last run)".format(full_src))
+						logging.info("Skip copying {} -> {} (unchanged since last run)".format(
+							full_src, full_dst))
 						continue
 					try:
 						os.makedirs(os.path.dirname(full_dst))
@@ -413,7 +415,11 @@ class Statipy(object):
 
 		#Attempt to interpret jinja embedded within Markdown file
 		if self.options['jinja_markdown']:
-			mdlines = environment.from_string(''.join(lines)).render(page=rendervars)
+			try:
+				mdlines = environment.from_string(''.join(lines)).render(page=rendervars)
+			except:
+				logging.error('\nProblem rendering file {}'.format(fullpath))
+				raise
 
 		#Render markdown content to HTML
 		self.markdown.reset()  #Clear variables like footnotes
