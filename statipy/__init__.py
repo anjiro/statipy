@@ -464,10 +464,16 @@ class Statipy(object):
 			except:
 				logging.error("Error rendering file {}".format(fullpath))
 				raise
-			if not re.search('{{[^}]+}}', rendervars['content']):
-				break
+			if re.search('{{[^}]+}}', rendervars['content']):
+				try:
+					template = environment.from_string(rendervars['content'])
+				except:
+					logging.error("Error rendering file {} with content included from external files".format(fullpath))
+					with open('/tmp/statipy-error.jinja', 'w') as f:
+						f.write(rendervars['content'])
+					raise
 			else:
-				template = environment.from_string(rendervars['content'])
+				break
 		return rendervars
 
 
