@@ -144,7 +144,7 @@ class Statipy(object):
 			'callbacks':          {},              #Callback to run functions on Environment
 		}
 
-		self.root = os.getcwd()
+		self.basedir = os.getcwd()
 		self.templ_vars = _default_vars
 
 		self.callback('init_start')
@@ -154,8 +154,8 @@ class Statipy(object):
 			import site_config
 		except ImportError:
 			logging.debug("ImportError in loading site_config.py. Current "
-					"path is: {}; files I see:\n{}".format(self.root,
-						os.listdir(self.root)))
+					"path is: {}; files I see:\n{}".format(self.basedir,
+						os.listdir(self.basedir)))
 			sys.stderr.write('Error importing site_config.py or file not '
 					'found. Are you in the right directory? Exiting.\n')
 			sys.exit(-1)
@@ -243,7 +243,7 @@ class Statipy(object):
 			#Per-directory environment to get templates from current
 			# directory or its parents
 			environment = jinja2.Environment(
-				loader=ParentLoader(root, stop=self.root,
+				loader=ParentLoader(root, stop=self.basedir,
 					default=self.options['default_template']),
 				extensions=self.options.get('jinja2_extensions', []))
 
@@ -381,11 +381,12 @@ class Statipy(object):
 				logging.info("Remove directory {}".format(rm_dir))
 				os.rmdir(rm_dir)
 
+
 	def render(self, path, environment, extravars={}):
 		"""Parse the passed Markdown file and use it to render the
 		requested template. Return the rendered page."""
 		
-		fullpath = os.path.relpath(os.path.join(os.getcwd(), path), self.root)
+		fullpath = os.path.relpath(os.path.join(os.getcwd(), path), self.basedir)
 		logging.info("render({})".format(fullpath))
 		
 		#Read file and get metavars
