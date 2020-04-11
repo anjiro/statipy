@@ -22,9 +22,10 @@ content. However, the main features that differentiate Statipy are:
 - In-Markdown Jinja: sometimes it's handy to embed a bit of code in
 	your content. Statipy will attempt to render your Markdown file with
 	Jinja first. The `jinja_markdown` variable can turn off this option.
-- Single file architecture: Statipy is under 300 lines long and lives
-	in a single file. You can provide an optional `site_config.py` file
-	for additional configuration. See the repository for an example.
+- Single file architecture: Statipy is under 400 lines long (not
+  counting comments) and lives in a single file. You can provide
+  an optional `site_config.py` file for additional configuration.
+  See the repository for an example.
 
 Here are several examples of sites built with Statipy:
 
@@ -38,6 +39,9 @@ You can see the source for these sites at
 
 ## Installation
 Run `pip install git+https://github.com/anjiro/statipy.git`.
+
+If you want output to be colorized, optionally `pip install
+coloredlogs`.
 
 ## Usage
 Create a directory to hold your files, then under that create a
