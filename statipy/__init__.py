@@ -275,7 +275,8 @@ class Statipy(object):
 				root_basename = root_basename[1:]  #Drop the _
 				extravars[parent_dir][root_basename] = []
 
-			#Go through each file in the current directory (root)
+			#Process each file in the current directory (root): render it,
+			# copy it, or ignore it.
 			for f in files:
 				rname, ext = os.path.splitext(f)
 
