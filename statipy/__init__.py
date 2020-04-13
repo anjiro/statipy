@@ -83,6 +83,33 @@ def get_meta(lines):
 	return meta, lines[i+1:]
 
 
+def load_module_from_file(module_name, module_path):
+	"""Loads a python module from the path of the corresponding file.
+	Source: https://github.com/spack/spack/blob/develop/lib/spack/llnl/util/lang.py
+	Args:
+		module_name (str): namespace where the python module will be loaded,
+			e.g. ``foo.bar``
+		module_path (str): path of the python file containing the module
+	Returns:
+		A valid module object
+	Raises:
+		ImportError: when the module can't be loaded
+		FileNotFoundError: when module_path doesn't exist
+	"""
+	if sys.version_info[0] == 3 and sys.version_info[1] >= 5:
+		import importlib.util
+		spec = importlib.util.spec_from_file_location(module_name, module_path)
+		module = importlib.util.module_from_spec(spec)
+		spec.loader.exec_module(module)
+	elif sys.version_info[0] == 3 and sys.version_info[1] < 5:
+		import importlib.machinery
+		loader = importlib.machinery.SourceFileLoader(module_name, module_path)
+		module = loader.load_module()
+	elif sys.version_info[0] == 2:
+		import imp
+		module = imp.load_source(module_name, module_path)
+	return module
+
 
 class ParentLoader(jinja2.BaseLoader):
 	"""A Jinja2 template loader that searches the path and all parent
@@ -130,6 +157,7 @@ class Statipy(object):
 			jinja2_tests      - a dict of user-defined tests
 			jinja2_extensions - a list of user-defined extensions
 			callbacks         - dict of functions to be run at different points
+			local_config      - filename of local config files to load
 
 			These options can also be stored in a dict called "options" in
 			site_config.py.
@@ -142,6 +170,7 @@ class Statipy(object):
 			'jinja_markdown':     True,            #Render Jinja in Markdown
 			'date_from_filename': True,            #If no 'Date:' in meta, try filename
 			'callbacks':          {},              #Callback to run functions on Environment
+			'local_config':       'local_config.py', #Local config filename
 		}
 
 		self.basedir = os.getcwd()
@@ -275,6 +304,21 @@ class Statipy(object):
 				root_basename = root_basename[1:]  #Drop the _
 				extravars[parent_dir][root_basename] = []
 
+			#See if we can load a local configuration file
+			local_templ_vars = {}
+			modname = ''
+			modpath = os.path.join(root, self.options['local_config'])
+			if os.path.exists(modpath):
+				modname = '_statipy_local_config-{}'.format(root)
+				logging.debug("loading {} as {}".format(modpath, modname))
+				local_config = load_module_from_file(modname, modpath)
+				try:
+					local_templ_vars = local_config.templ_vars
+				except AttributeError:
+					logging.warn("Found {} in {}, but no templ_vars inside.".format(
+						self.options['local_config'], root))
+					modname = ''
+
 			#Process each file in the current directory (root): render it,
 			# copy it, or ignore it.
 			for f in files:
@@ -326,14 +370,11 @@ class Statipy(object):
 					#Be sure we're in the root content directory for relative paths
 					os.chdir(root)  
 
-					#See if we can load a local configuration
-					#if os.path.exists()
-					#spec = importlib.util.spec_from_file_location()
-
 					try:
-						_extravars = extravars.get(root, {})
+						_extravars = extravars.get(root, {}) #From _ dirs
 						_extravars['fullpath'] = destfile
 						_extravars.update(self.templ_vars)
+						_extravars.update(local_templ_vars)
 						meta = self.render(f, environment, _extravars)
 					except UnboundLocalError:
 						logging.error("Error rendering file {}".format(full_src))
