@@ -7,15 +7,6 @@ import jinja2
 import dateutil.parser
 from   codecs      import open
 from   collections import defaultdict
-
-try:
-	import coloredlogs
-except:
-	pass
-else:
-	fmt = '%(asctime)s %(levelname)s %(message)s'
-	coloredlogs.install(level='WARN', milliseconds=True, fmt=fmt)
-
 import importlib
 
 _default_vars = {
@@ -551,13 +542,20 @@ class Statipy(object):
 
 def main():
 	import time, argparse
-
 	p = argparse.ArgumentParser(description="Static website generator")
 	p.add_argument('-d', action='store_true', help='Turn on debugging')
-
 	args = p.parse_args()
-	if args.d:
-		logging.basicConfig(level=logging.DEBUG)
+
+	try:
+		import coloredlogs
+	except:
+		if args.d:
+			logging.basicConfig(level=logging.DEBUG)
+	else:
+		fmt = '%(asctime)s %(levelname)s %(message)s'
+		coloredlogs.install(level=logging.DEBUG if args.d else logging.WARN,
+				fmt=fmt)
+
 
 	t = time.time()
 	sys.stdout.write("Statipy...")
