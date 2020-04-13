@@ -155,13 +155,13 @@ class Statipy(object):
 			site_config.py.
 		"""
 		self.options = {
-			'content_dir':        'content',       #Where to look for content
-			'output_dir':         'output',        #Where to put output
-			'default_template':   'default.jinja', #Use if not specified in .md files
-			'root_subdir':        None,            #Put files here in site root
-			'jinja_markdown':     True,            #Render Jinja in Markdown
-			'date_from_filename': True,            #If no 'Date:' in meta, try filename
-			'callbacks':          {},              #Callback to run functions on Environment
+			'content_dir':        'content',         #Where to look for content
+			'output_dir':         'output',          #Where to put output
+			'default_template':   'default.jinja',   #Use if not specified in .md files
+			'root_subdir':        None,              #Put files here in site root
+			'jinja_markdown':     True,              #Render Jinja in Markdown
+			'date_from_filename': True,              #If no 'Date:' in meta, try filename
+			'callbacks':          {},                #Callback to run functions on Environment
 			'local_config':       'local_config.py', #Local config filename
 		}
 
