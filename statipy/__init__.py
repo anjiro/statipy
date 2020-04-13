@@ -16,6 +16,7 @@ else:
 	fmt = '%(asctime)s %(levelname)s %(message)s'
 	coloredlogs.install(level='WARN', milliseconds=True, fmt=fmt)
 
+import importlib
 
 _default_vars = {
 	'DEFAULT_LANG': 'en',
