@@ -63,6 +63,16 @@ Second, it looks for [Jinja2](http://jinja.pocoo.org) templates with
 `.jinja` extensions. It uses the Markdown files as content to render
 the templates with.
 
+#### Local configuration files
+Statipy looks for special local configuration files in each
+content directory. By default it looks for a file called
+`local_config.py`. If it finds such a file, it tries to load a
+dict called `templ_vars` from that file. Values defined here are
+accessible in templates via the `page` variable, just as those
+defined in `site_config.py`. The filename of the local
+configuration file can be changed in `site_config.py` via the
+options dictionary.
+
 #### Content
 Statipy Markdown files have special metadata at the top. The metadata
 consists of a tag followed by a colon. All metadata must be at the top

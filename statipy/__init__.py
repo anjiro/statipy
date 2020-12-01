@@ -14,6 +14,11 @@ _default_vars = {
 }
 
 
+def serve():
+	import http.server
+	http.server.test(http.server.SimpleHTTPRequestHandler, port=8000)
+
+
 def search_parents(path, filename, stop='/'):
 	"""Search path and its parents for the given filename. Return the
 	full absolute path to the file, including the filename. Return None if
