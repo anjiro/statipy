@@ -5,7 +5,7 @@ requires = ['jinja2 > 2.7', 'python-dateutil']
 entry_points = {
 	'console_scripts': [
 		'statipy = statipy:main',
-		'statipy-serve = SimpleHTTPServer:test',
+		'statipy-serve = statipy:serve',
 	]
 }
 
